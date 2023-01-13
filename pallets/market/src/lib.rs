@@ -19,6 +19,9 @@ pub mod pallet {
 		type RuntimeEvent: From<Event<Self>> + IsType<<Self as frame_system::Config>::RuntimeEvent>;
 	}
 	
+	/// Market storage
+    // Accumulated price data for each pair. key is lptoken identifier
+
 	#[pallet::storage]
 	#[pallet::getter(fn last_cumulative_price)]
 	pub(super) type LastAccumulativePrice<T: Config> = StorageMap<

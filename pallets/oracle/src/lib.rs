@@ -1,8 +1,4 @@
 #![cfg_attr(not(feature = "std"), no_std)]
-
-/// Edit this file to define custom logic or remove it if it is not needed.
-/// Learn more about FRAME and the core library of Substrate FRAME pallets:
-/// <https://docs.substrate.io/reference/frame-pallets/>
 pub use pallet::*;
 
 #[frame_support::pallet]
@@ -144,6 +140,7 @@ pub mod pallet {
         pub fn report(origin: OriginFor<T>, id: T::AssetId, price: T::Balance) -> DispatchResult {
             let who: T::AccountId = ensure_signed(origin)?;
 			ensure!(Operators::<T>::contains_key(who), Error::<T>::WrongOperator);
+			Prices::<T>::insert(id, price);
 			Ok(())
         }
 	}

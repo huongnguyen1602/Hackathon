@@ -61,6 +61,7 @@ pub mod pallet {
 	#[pallet::event]
 	#[pallet::generate_deposit(pub(super) fn deposit_event)]
 	pub enum Event<T: Config> {
+		/// Some assets were issued. \[asset_id, owner, total_supply\]
 		Issued(T::AssetId, T::AccountId, T::Balance),
         /// Some assets were issued by the system(e.g. lpt, pool tokens) \[asset_id, total_supply]
         IssuedBySystem(T::AssetId, T::Balance),
@@ -144,7 +145,7 @@ pub mod pallet {
 		#[pallet::weight(0)]
         pub fn burn(origin: OriginFor<T>,
         	id: T::AssetId,
-           	target: <<T as frame_system::Config>::Lookup as StaticLookup>::Source,
+           	//target: <<T as frame_system::Config>::Lookup as StaticLookup>::Source,
            	amount: T::Balance
        	)-> DispatchResult{
            let origin = ensure_signed(origin)?;
@@ -207,7 +208,6 @@ pub mod pallet {
 		pub fn balance(id: T::AssetId, who: T::AccountId) -> T::Balance {
 			if id == Zero::zero() {
 				return pallet_balances::Pallet::<T>::free_balance(&who);
-
 			}
 			<Balances<T>>::get((id, who))
 		}
@@ -228,7 +228,7 @@ pub mod pallet {
 				pallet_balances::Pallet::<T>::mutate_account(target, |account| {
 					account.free = new_free;
 					account.free
-				});
+				})?;
 			} else {
 				<Balances<T>>::mutate((*id, target.clone()), |balance| *balance += *amount);
 				<TotalSupply<T>>::mutate(*id, |supply| *supply += *amount);
@@ -269,10 +269,10 @@ pub mod pallet {
 			if *id == Zero::zero() {
 				pallet_balances::Pallet::<T>::mutate_account(source, |account| {
 					account.free -= *amount;
-				});
+				})?;
 				pallet_balances::Pallet::<T>::mutate_account(target, |account| {
 					account.free += *amount;
-				});
+				})?;
 			} else {
 				<Balances<T>>::mutate((*id, target), |balance| *balance += *amount);
 				<Balances<T>>::mutate((*id, source), |balance| *balance -= *amount);
@@ -291,10 +291,10 @@ pub mod pallet {
 			if *id == Zero::zero() {
 				pallet_balances::Pallet::<T>::mutate_account(&module_account, |account| {
 					account.free -= *amount;
-				});
+				})?;
 				pallet_balances::Pallet::<T>::mutate_account(target, |account| {
 					account.free += *amount;
-				});
+				})?;
 			} else {
 				<Balances<T>>::mutate((*id, target.clone()), |balance| *balance += *amount);
 				<Balances<T>>::mutate((*id, module_account), |balance| *balance -= *amount);
@@ -315,10 +315,10 @@ pub mod pallet {
 			if *id == Zero::zero() {
 				pallet_balances::Pallet::<T>::mutate_account(source, |account| {
 					account.free -= *amount;
-				});
+				})?;
 				pallet_balances::Pallet::<T>::mutate_account(&module_account, |account| {
 					account.free += *amount;
-				});
+				})?;
 			} else {
 				<Balances<T>>::mutate((*id, source.clone()), |balance| *balance -= *amount);
 				<Balances<T>>::mutate((*id, module_account), |balance| *balance += *amount);
